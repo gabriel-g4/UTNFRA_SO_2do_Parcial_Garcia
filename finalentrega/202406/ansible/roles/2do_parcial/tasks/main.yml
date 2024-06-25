@@ -1,0 +1,35 @@
+---
+# tasks file for 2do_parcial
+
+- debug:
+    msg: "Tareas del 2do Parcial"
+
+- name: Creacion de directorios
+  ansible.builtin.file:
+    path: /tmp/2do_parcial/{{ item }}
+    state: directory
+    recurse: yes
+  with_items:
+    - alumno
+    - equipo
+
+- name: Template alumno a datos alumno
+  ansible.builtin.template:
+    src: roles/2do_parcial/templates/datos.j2
+    dest: /tmp/2do_parcial/alumno/datos_alumno.txt
+
+- name: Template equipo a datos equipo
+  ansible.builtin.template:
+    src: roles/2do_parcial/templates/equipo.j2
+    dest: /tmp/2do_parcial/equipo/datos_equipo.txt
+
+- name: añadir nopass a 2PSupervisores
+  become: yes
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    insertafter: EOF
+    regexp: '^%2PSupervisores'
+    line: '%2PSupervisores ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
